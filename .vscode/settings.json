@@ -1,0 +1,32 @@
+{
+    "files.associations": {
+        "*.inc": "cpp",
+        "postgres.h": "c",
+        "palloc.h": "c",
+        "bitmapset.h": "c",
+        "memcheck.h": "c",
+        "array": "c",
+        "bitset": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "ranges": "c",
+        "utility": "c",
+        "typeindex": "c",
+        "typeinfo": "c",
+        "cstring": "c",
+        "*.gen": "c",
+        "compare": "c",
+        "functional": "c",
+        "ostream": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "fe_memutils.h": "c",
+        "libpq-fe.h": "c",
+        "postgres_ext.h": "c",
+        "memutils.h": "c",
+        "table.h": "c",
+        "fd.h": "c",
+        "elog.h": "c",
+        "psqlscan.h": "c"
+    }
+}

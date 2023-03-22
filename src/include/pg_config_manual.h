@@ -257,6 +257,8 @@
  * instrumentation of repalloc() is inferior without it.
  */
 /* #define USE_VALGRIND */
+#define USE_ASAN
+#define __SANITIZE_ADDRESS__
 
 /*
  * Define this to cause pfree()'d memory to be cleared immediately, to
