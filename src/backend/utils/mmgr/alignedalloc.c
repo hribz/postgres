@@ -28,6 +28,9 @@
 void
 AlignedAllocFree(void *pointer)
 {
+	#ifdef USE_ASAN
+		pointer = PointerOffset(pointer, -16);
+	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	void	   *unaligned;
 
@@ -57,6 +60,9 @@ AlignedAllocFree(void *pointer)
 void *
 AlignedAllocRealloc(void *pointer, Size size)
 {
+	#ifdef USE_ASAN
+		pointer = PointerOffset(pointer, -16);
+	#endif
 	MemoryChunk *redirchunk = PointerGetMemoryChunk(pointer);
 	Size		alignto = MemoryChunkGetValue(redirchunk);
 	void	   *unaligned = MemoryChunkGetBlock(redirchunk);
@@ -92,6 +98,10 @@ AlignedAllocRealloc(void *pointer, Size size)
 	ctx = GetMemoryChunkContext(unaligned);
 	newptr = MemoryContextAllocAligned(ctx, size, alignto, 0);
 
+	#ifdef USE_ASAN
+		pointer = PointerOffset(pointer, 16);
+		old_size -= 16;
+	#endif
 	/*
 	 * We may memcpy beyond the end of the original allocation request size,
 	 * so we must mark the entire allocation as defined.
@@ -110,6 +120,9 @@ AlignedAllocRealloc(void *pointer, Size size)
 MemoryContext
 AlignedAllocGetChunkContext(void *pointer)
 {
+	#ifdef USE_ASAN
+		pointer = PointerOffset(pointer, -16);
+	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 
 	Assert(!MemoryChunkIsExternal(chunk));
@@ -125,6 +138,9 @@ AlignedAllocGetChunkContext(void *pointer)
 Size
 AlignedAllocGetChunkSpace(void *pointer)
 {
+	#ifdef USE_ASAN
+		pointer = PointerOffset(pointer, -16);
+	#endif
 	MemoryChunk *redirchunk = PointerGetMemoryChunk(pointer);
 	void	   *unaligned = MemoryChunkGetBlock(redirchunk);
 

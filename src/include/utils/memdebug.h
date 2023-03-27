@@ -35,7 +35,9 @@
 #define VALGRIND_CREATE_MEMPOOL(context, redzones, zeroed) do {} while (0)
 #define VALGRIND_DESTROY_MEMPOOL(context) do {} while (0)
 #define VALGRIND_MEMPOOL_ALLOC(context, addr, size) \
- ASAN_UNPOISON_MEMORY_REGION(addr, size)
+ ASAN_UNPOISON_MEMORY_REGION(addr, size); \
+ ASAN_MEMPOOL_ALLOC(addr, size);
+
 #define VALGRIND_MEMPOOL_FREE(context, addr) \
  ASAN_POISON_MEMORY_REGION(addr, size)
 #define VALGRIND_MEMPOOL_CHANGE(context, optr, nptr, size) do {} while (0)

@@ -123,6 +123,8 @@ typedef struct MemoryChunk
 /* Get the pointer from the MemoryChunk */
 #define MemoryChunkGetPointer(c) \
 	((void *) ((char *) (c) + sizeof(MemoryChunk)))
+#define PointerOffset(p, offset) \
+	((void *) ((char *) (p) + (offset)))
 
 /* private macros for making the inline functions below more simple */
 #define HdrMaskIsExternal(hdrmask) \

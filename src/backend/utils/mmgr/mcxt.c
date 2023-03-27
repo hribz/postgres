@@ -181,6 +181,9 @@ static void MemoryContextStatsPrint(MemoryContext context, void *passthru,
 static inline MemoryContextMethodID
 GetMemoryChunkMethodID(const void *pointer)
 {
+	#ifdef USE_ASAN
+		pointer = PointerOffset(pointer, -16);
+	#endif
 	uint64		header;
 
 	/*
@@ -204,6 +207,9 @@ GetMemoryChunkMethodID(const void *pointer)
 static inline uint64
 GetMemoryChunkHeader(const void *pointer)
 {
+	#ifdef USE_ASAN
+		pointer = PointerOffset(pointer, -16);
+	#endif
 	return *((const uint64 *) ((const char *) pointer - sizeof(uint64)));
 }
 
@@ -216,6 +222,10 @@ GetMemoryChunkHeader(const void *pointer)
 static void
 BogusFree(void *pointer)
 {
+	// trigger asan to output more specific information
+	#ifdef USE_ASAN
+		*((char *)pointer-8)='x';
+	#endif
 	elog(ERROR, "pfree called with invalid pointer %p (header 0x%016llx)",
 		 pointer, (long long) GetMemoryChunkHeader(pointer));
 }
@@ -223,6 +233,10 @@ BogusFree(void *pointer)
 static void *
 BogusRealloc(void *pointer, Size size)
 {
+	// trigger asan to output more specific information
+	#ifdef USE_ASAN
+		*((char *)pointer-8)='x';
+	#endif
 	elog(ERROR, "repalloc called with invalid pointer %p (header 0x%016llx)",
 		 pointer, (long long) GetMemoryChunkHeader(pointer));
 	return NULL;				/* keep compiler quiet */
@@ -231,6 +245,10 @@ BogusRealloc(void *pointer, Size size)
 static MemoryContext
 BogusGetChunkContext(void *pointer)
 {
+	// trigger asan to output more specific information
+	#ifdef USE_ASAN
+		*((char *)pointer-8)='x';
+	#endif
 	elog(ERROR, "GetMemoryChunkContext called with invalid pointer %p (header 0x%016llx)",
 		 pointer, (long long) GetMemoryChunkHeader(pointer));
 	return NULL;				/* keep compiler quiet */
@@ -239,6 +257,10 @@ BogusGetChunkContext(void *pointer)
 static Size
 BogusGetChunkSpace(void *pointer)
 {
+	// trigger asan to output more specific information
+	#ifdef USE_ASAN
+		*((char *)pointer-8)='x';
+	#endif
 	elog(ERROR, "GetMemoryChunkSpace called with invalid pointer %p (header 0x%016llx)",
 		 pointer, (long long) GetMemoryChunkHeader(pointer));
 	return 0;					/* keep compiler quiet */
@@ -1372,6 +1394,10 @@ MemoryContextAllocAligned(MemoryContext context,
 
 	/* perform the actual allocation */
 	unaligned = MemoryContextAllocExtended(context, alloc_size, flags);
+	#ifdef USE_ASAN
+		unaligned = PointerOffset(unaligned, -16);
+		VALGRIND_MAKE_MEM_DEFINED(unaligned, 16);
+	#endif
 
 	/* set the aligned pointer */
 	aligned = (void *) TYPEALIGN(alignto, (char *) unaligned +
@@ -1404,6 +1430,12 @@ MemoryContextAllocAligned(MemoryContext context,
 	/* Mark the bytes before the redirection header as noaccess */
 	VALGRIND_MAKE_MEM_NOACCESS(unaligned,
 							   (char *) alignedchunk - (char *) unaligned);
+
+	#ifdef USE_ASAN
+		aligned = PointerOffset(aligned, 16);
+		VALGRIND_MEMPOOL_ALLOC(context, aligned, size);
+	#endif
+
 	return aligned;
 }
 

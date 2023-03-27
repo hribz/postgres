@@ -1,0 +1,294 @@
+make -C ./src/backend generated-headers
+make[1]: Entering directory `/home/xiaoyu/gradDesign/postgres/build-asan/src/backend'
+make -C catalog distprep generated-header-symlinks
+make[2]: Entering directory `/home/xiaoyu/gradDesign/postgres/build-asan/src/backend/catalog'
+make[2]: Nothing to be done for `distprep'.
+make[2]: Nothing to be done for `generated-header-symlinks'.
+make[2]: Leaving directory `/home/xiaoyu/gradDesign/postgres/build-asan/src/backend/catalog'
+make -C nodes distprep generated-header-symlinks
+make[2]: Entering directory `/home/xiaoyu/gradDesign/postgres/build-asan/src/backend/nodes'
+make[2]: Nothing to be done for `distprep'.
+make[2]: Nothing to be done for `generated-header-symlinks'.
+make[2]: Leaving directory `/home/xiaoyu/gradDesign/postgres/build-asan/src/backend/nodes'
+make -C utils distprep generated-header-symlinks
+make[2]: Entering directory `/home/xiaoyu/gradDesign/postgres/build-asan/src/backend/utils'
+make[2]: Nothing to be done for `distprep'.
+make[2]: Nothing to be done for `generated-header-symlinks'.
+make[2]: Leaving directory `/home/xiaoyu/gradDesign/postgres/build-asan/src/backend/utils'
+make[1]: Leaving directory `/home/xiaoyu/gradDesign/postgres/build-asan/src/backend'
+rm -rf '/home/xiaoyu/gradDesign/postgres/build-asan'/tmp_install
+/bin/mkdir -p '/home/xiaoyu/gradDesign/postgres/build-asan'/tmp_install/log
+make -C '.' DESTDIR='/home/xiaoyu/gradDesign/postgres/build-asan'/tmp_install install >'/home/xiaoyu/gradDesign/postgres/build-asan'/tmp_install/log/install.log 2>&1
+make -j1 -C src/test/regress checkprep >>'/home/xiaoyu/gradDesign/postgres/build-asan'/tmp_install/log/install.log 2>&1
+make -C src/test/regress check
+make[1]: Entering directory `/home/xiaoyu/gradDesign/postgres/build-asan/src/test/regress'
+make -C ../../../src/port all
+make[2]: Entering directory `/home/xiaoyu/gradDesign/postgres/build-asan/src/port'
+make[2]: Nothing to be done for `all'.
+make[2]: Leaving directory `/home/xiaoyu/gradDesign/postgres/build-asan/src/port'
+make -C ../../../src/common all
+make[2]: Entering directory `/home/xiaoyu/gradDesign/postgres/build-asan/src/common'
+make[2]: Nothing to be done for `all'.
+make[2]: Leaving directory `/home/xiaoyu/gradDesign/postgres/build-asan/src/common'
+make -C ../../../contrib/spi
+make[2]: Entering directory `/home/xiaoyu/gradDesign/postgres/build-asan/contrib/spi'
+make[2]: Nothing to be done for `all'.
+make[2]: Leaving directory `/home/xiaoyu/gradDesign/postgres/build-asan/contrib/spi'
+echo "+++ regress check in src/test/regress +++" && PATH="/home/xiaoyu/gradDesign/postgres/build-asan/tmp_install/home/xiaoyu/gradDesign/postgres/build-asan/install/bin:/home/xiaoyu/gradDesign/postgres/build-asan/src/test/regress:$PATH" LD_LIBRARY_PATH="/home/xiaoyu/gradDesign/postgres/build-asan/tmp_install/home/xiaoyu/gradDesign/postgres/build-asan/install/lib"  ../../../src/test/regress/pg_regress --temp-instance=./tmp_check --inputdir=/home/xiaoyu/gradDesign/postgres/build-asan/../src/test/regress --bindir=     --dlpath=. --max-concurrent-tests=20  --schedule=/home/xiaoyu/gradDesign/postgres/build-asan/../src/test/regress/parallel_schedule  
++++ regress check in src/test/regress +++
+============== removing existing temp instance        ==============
+============== creating temporary instance            ==============
+============== initializing database system           ==============
+============== starting postmaster                    ==============
+running on port 61696 with PID 2931719
+============== creating database "regression"         ==============
+CREATE DATABASE
+ALTER DATABASE
+ALTER DATABASE
+ALTER DATABASE
+ALTER DATABASE
+ALTER DATABASE
+ALTER DATABASE
+============== running regression test queries        ==============
+test test_setup                   ... ok          588 ms
+parallel group (20 tests):  name varchar char oid int2 text pg_lsn txid int4 money boolean regproc uuid float4 int8 float8 bit enum numeric rangetypes
+     boolean                      ... ok          113 ms
+     char                         ... ok           67 ms
+     name                         ... ok           65 ms
+     varchar                      ... ok           65 ms
+     text                         ... ok           80 ms
+     int2                         ... ok           73 ms
+     int4                         ... ok           89 ms
+     int8                         ... ok          154 ms
+     oid                          ... ok           69 ms
+     float4                       ... ok          131 ms
+     float8                       ... ok          184 ms
+     bit                          ... ok          228 ms
+     numeric                      ... ok         1098 ms
+     txid                         ... ok           76 ms
+     uuid                         ... ok          124 ms
+     enum                         ... ok          242 ms
+     money                        ... ok           98 ms
+     rangetypes                   ... ok         1325 ms
+     pg_lsn                       ... ok           72 ms
+     regproc                      ... ok           99 ms
+parallel group (20 tests):  md5 lseg line path circle timetz time macaddr point numerology macaddr8 date inet interval strings polygon timestamp box timestamptz multirangetypes
+     strings                      ... ok          336 ms
+     md5                          ... ok           37 ms
+     numerology                   ... ok          106 ms
+     point                        ... ok           95 ms
+     lseg                         ... ok           38 ms
+     line                         ... ok           47 ms
+     box                          ... ok          513 ms
+     path                         ... ok           55 ms
+     polygon                      ... ok          393 ms
+     circle                       ... ok           54 ms
+     date                         ... ok          140 ms
+     time                         ... ok           67 ms
+     timetz                       ... ok           57 ms
+     timestamp                    ... ok          446 ms
+     timestamptz                  ... ok          538 ms
+     interval                     ... ok          237 ms
+     inet                         ... ok          165 ms
+     macaddr                      ... ok           66 ms
+     macaddr8                     ... ok           95 ms
+     multirangetypes              ... ok          823 ms
+parallel group (12 tests):  comments unicode misc_sanity xid tstypes mvcc expressions horology type_sanity geometry regex opr_sanity
+     geometry                     ... ok          297 ms
+     horology                     ... ok          247 ms
+     tstypes                      ... ok          137 ms
+     regex                        ... ok          497 ms
+     type_sanity                  ... ok          257 ms
+     opr_sanity                   ... ok          842 ms
+     misc_sanity                  ... ok           64 ms
+     comments                     ... ok           28 ms
+     expressions                  ... ok          173 ms
+     unicode                      ... ok           52 ms
+     xid                          ... ok          126 ms
+     mvcc                         ... ok          165 ms
+parallel group (5 tests):  copyselect copydml copy insert_conflict insert
+     copy                         ... ok          243 ms
+     copyselect                   ... ok           85 ms
+     copydml                      ... ok           95 ms
+     insert                       ... ok         1352 ms
+     insert_conflict              ... ok          446 ms
+parallel group (6 tests):  create_function_c create_operator create_type create_misc create_procedure create_table
+     create_function_c            ... ok           33 ms
+     create_misc                  ... ok          151 ms
+     create_operator              ... ok           68 ms
+     create_procedure             ... ok          190 ms
+     create_table                 ... ok         1225 ms
+     create_type                  ... ok          146 ms
+parallel group (5 tests):  index_including index_including_gist create_view create_index_spgist create_index
+     create_index                 ... ok         7770 ms
+     create_index_spgist          ... ok         1318 ms
+     create_view                  ... ok         1038 ms
+     index_including              ... ok          601 ms
+     index_including_gist         ... ok          628 ms
+parallel group (16 tests):  errors create_cast roleattributes hash_func create_aggregate drop_if_exists select create_am typed_table create_function_sql infinite_recurse constraints vacuum inherit updatable_views triggers
+     create_aggregate             ... ok          118 ms
+     create_function_sql          ... ok          368 ms
+     create_cast                  ... ok           72 ms
+     constraints                  ... ok          972 ms
+     triggers                     ... ok         4340 ms
+     select                       ... ok          203 ms
+     inherit                      ... ok         2261 ms
+     typed_table                  ... ok          358 ms
+     vacuum                       ... ok         1404 ms
+     drop_if_exists               ... ok          123 ms
+     updatable_views              ... ok         2372 ms
+     roleattributes               ... ok           91 ms
+     create_am                    ... ok          352 ms
+     hash_func                    ... ok           99 ms
+     errors                       ... ok           52 ms
+     infinite_recurse             ... ok          404 ms
+test sanity_check                 ... ok          271 ms
+parallel group (20 tests):  select_into select_implicit union select_distinct_on select_having random delete namespace case portals select_distinct prepared_xacts transactions subselect arrays update hash_index join aggregates btree_index
+     select_into                  ... ok          150 ms
+     select_distinct              ... ok        23572 ms
+     select_distinct_on           ... ok        18278 ms
+     select_implicit              ... ok         7433 ms
+     select_having                ... ok        20584 ms
+     subselect                    ... ok        23832 ms
+     union                        ... ok         7821 ms
+     case                         ... ok        23471 ms
+     join                         ... ok        24907 ms
+     aggregates                   ... ok        25123 ms
+     transactions                 ... ok        23658 ms
+     random                       ... ok        20961 ms
+     portals                      ... ok        23540 ms
+     arrays                       ... ok        23905 ms
+     btree_index                  ... ok        27378 ms
+     hash_index                   ... ok        24297 ms
+     update                       ... ok        24228 ms
+     delete                       ... ok        23423 ms
+     namespace                    ... ok        23434 ms
+     prepared_xacts               ... ok        23580 ms
+parallel group (20 tests):  init_privs drop_operator security_label tablesample object_address lock password collate replica_identity identity groupingsets matview generated spgist rowsecurity gist join_hash gin privileges brin
+     brin                         ... FAILED (test process exited with exit code 2)     8062 ms
+     gin                          ... FAILED (test process exited with exit code 2)     8035 ms
+     gist                         ... ok         3276 ms
+     spgist                       ... ok         2636 ms
+     privileges                   ... FAILED (test process exited with exit code 2)     8038 ms
+     init_privs                   ... ok          887 ms
+     security_label               ... ok          937 ms
+     collate                      ... ok         1829 ms
+     matview                      ... ok         2333 ms
+     lock                         ... ok         1568 ms
+     replica_identity             ... ok         1858 ms
+     rowsecurity                  ... ok         3094 ms
+     object_address               ... ok         1538 ms
+     tablesample                  ... ok         1495 ms
+     groupingsets                 ... ok         2195 ms
+     drop_operator                ... ok          912 ms
+     password                     ... ok         1637 ms
+     identity                     ... ok         2071 ms
+     generated                    ... ok         2543 ms
+     join_hash                    ... ok         5438 ms
+parallel group (2 tests):  brin_bloom brin_multi
+     brin_bloom                   ... FAILED (test process exited with exit code 2)       15 ms
+     brin_multi                   ... FAILED (test process exited with exit code 2)       15 ms
+parallel group (16 tests):  create_table_like alter_generic alter_operator misc sysviews merge misc_functions async dbsize tidscan tid tsrf tidrangescan incremental_sort collate.icu.utf8 create_role
+     create_table_like            ... FAILED (test process exited with exit code 2)       16 ms
+     alter_generic                ... FAILED (test process exited with exit code 2)       17 ms
+     alter_operator               ... FAILED (test process exited with exit code 2)       18 ms
+     misc                         ... FAILED (test process exited with exit code 2)       18 ms
+     async                        ... FAILED (test process exited with exit code 2)       23 ms
+     dbsize                       ... FAILED (test process exited with exit code 2)       23 ms
+     merge                        ... FAILED (test process exited with exit code 2)       18 ms
+     misc_functions               ... FAILED (test process exited with exit code 2)       18 ms
+     sysviews                     ... FAILED (test process exited with exit code 2)       14 ms
+     tsrf                         ... FAILED (test process exited with exit code 2)       22 ms
+     tid                          ... FAILED (test process exited with exit code 2)       21 ms
+     tidscan                      ... FAILED (test process exited with exit code 2)       18 ms
+     tidrangescan                 ... FAILED (test process exited with exit code 2)       21 ms
+     collate.icu.utf8             ... FAILED (test process exited with exit code 2)       21 ms
+     incremental_sort             ... FAILED (test process exited with exit code 2)       20 ms
+     create_role                  ... FAILED (test process exited with exit code 2)       20 ms
+parallel group (7 tests):  psql rules psql_crosstab amutils stats_ext collate.linux.utf8 collate.windows.win1252
+     rules                        ... FAILED (test process exited with exit code 2)       20 ms
+     psql                         ... FAILED (test process exited with exit code 2)       17 ms
+     psql_crosstab                ... FAILED (test process exited with exit code 2)       19 ms
+     amutils                      ... FAILED (test process exited with exit code 2)       19 ms
+     stats_ext                    ... FAILED (test process exited with exit code 2)       20 ms
+     collate.linux.utf8           ... FAILED (test process exited with exit code 2)       20 ms
+     collate.windows.win1252      ... FAILED (test process exited with exit code 2)       20 ms
+test select_parallel              ... FAILED (test process exited with exit code 2)       19 ms
+test write_parallel               ... FAILED (test process exited with exit code 2)       18 ms
+test vacuum_parallel              ... FAILED (test process exited with exit code 2)       13 ms
+parallel group (2 tests):  subscription publication
+     publication                  ... FAILED (test process exited with exit code 2)       18 ms
+     subscription                 ... FAILED (test process exited with exit code 2)       14 ms
+parallel group (17 tests):  select_views foreign_key portals_p2 cluster tsdicts dependency guc bitmapops xmlmap advisory_lock combocid indirect_toast foreign_data functional_deps tsearch window equivclass
+     select_views                 ... FAILED (test process exited with exit code 2)       17 ms
+     portals_p2                   ... FAILED (test process exited with exit code 2)       20 ms
+     foreign_key                  ... FAILED (test process exited with exit code 2)       17 ms
+     cluster                      ... FAILED (test process exited with exit code 2)       18 ms
+     dependency                   ... FAILED (test process exited with exit code 2)       19 ms
+     guc                          ... FAILED (test process exited with exit code 2)       19 ms
+     bitmapops                    ... FAILED (test process exited with exit code 2)       20 ms
+     combocid                     ... FAILED (test process exited with exit code 2)       23 ms
+     tsearch                      ... FAILED (test process exited with exit code 2)       25 ms
+     tsdicts                      ... FAILED (test process exited with exit code 2)       14 ms
+     foreign_data                 ... FAILED (test process exited with exit code 2)       22 ms
+     window                       ... FAILED (test process exited with exit code 2)       24 ms
+     xmlmap                       ... FAILED (test process exited with exit code 2)       16 ms
+     functional_deps              ... FAILED (test process exited with exit code 2)       20 ms
+     advisory_lock                ... FAILED (test process exited with exit code 2)       16 ms
+     indirect_toast               ... FAILED (test process exited with exit code 2)       17 ms
+     equivclass                   ... FAILED (test process exited with exit code 2)       19 ms
+parallel group (6 tests):  json jsonb json_encoding jsonpath_encoding jsonpath jsonb_jsonpath
+     json                         ... FAILED (test process exited with exit code 2)       18 ms
+     jsonb                        ... FAILED (test process exited with exit code 2)       18 ms
+     json_encoding                ... FAILED (test process exited with exit code 2)       18 ms
+     jsonpath                     ... FAILED (test process exited with exit code 2)       20 ms
+     jsonpath_encoding            ... FAILED (test process exited with exit code 2)       17 ms
+     jsonb_jsonpath               ... FAILED (test process exited with exit code 2)       19 ms
+parallel group (18 tests):  plancache limit plpgsql temp domain copy2 prepare conversion rangefuncs truncate polymorphism sequence rowtypes returning alter_table largeobject with xml
+     plancache                    ... FAILED (test process exited with exit code 2)       20 ms
+     limit                        ... FAILED (test process exited with exit code 2)       20 ms
+     plpgsql                      ... FAILED (test process exited with exit code 2)       21 ms
+     copy2                        ... FAILED (test process exited with exit code 2)       26 ms
+     temp                         ... FAILED (test process exited with exit code 2)       20 ms
+     domain                       ... FAILED (test process exited with exit code 2)       20 ms
+     rangefuncs                   ... FAILED (test process exited with exit code 2)       25 ms
+     prepare                      ... FAILED (test process exited with exit code 2)       22 ms
+     conversion                   ... FAILED (test process exited with exit code 2)       22 ms
+     truncate                     ... FAILED (test process exited with exit code 2)       23 ms
+     alter_table                  ... FAILED (test process exited with exit code 2)       23 ms
+     sequence                     ... FAILED (test process exited with exit code 2)       20 ms
+     polymorphism                 ... FAILED (test process exited with exit code 2)       18 ms
+     rowtypes                     ... FAILED (test process exited with exit code 2)       19 ms
+     returning                    ... FAILED (test process exited with exit code 2)       18 ms
+     largeobject                  ... FAILED (test process exited with exit code 2)       19 ms
+     with                         ... FAILED (test process exited with exit code 2)       20 ms
+     xml                          ... FAILED (test process exited with exit code 2)       21 ms
+parallel group (12 tests):  partition_prune reloptions partition_info indexing tuplesort partition_join partition_aggregate hash_part explain compression stats memoize
+     partition_join               ... FAILED (test process exited with exit code 2)       25 ms
+     partition_prune              ... FAILED (test process exited with exit code 2)       16 ms
+     reloptions                   ... FAILED (test process exited with exit code 2)       18 ms
+     hash_part                    ... FAILED (test process exited with exit code 2)       26 ms
+     indexing                     ... FAILED (test process exited with exit code 2)       19 ms
+     partition_aggregate          ... FAILED (test process exited with exit code 2)       22 ms
+     partition_info               ... FAILED (test process exited with exit code 2)       16 ms
+     tuplesort                    ... FAILED (test process exited with exit code 2)       18 ms
+     explain                      ... FAILED (test process exited with exit code 2)       23 ms
+     compression                  ... FAILED (test process exited with exit code 2)       23 ms
+     memoize                      ... FAILED (test process exited with exit code 2)       24 ms
+     stats                        ... FAILED (test process exited with exit code 2)       22 ms
+parallel group (2 tests):  event_trigger oidjoins
+     event_trigger                ... FAILED (test process exited with exit code 2)       17 ms
+     oidjoins                     ... FAILED (test process exited with exit code 2)       17 ms
+test fast_default                 ... FAILED (test process exited with exit code 2)       16 ms
+test tablespace                   ... FAILED (test process exited with exit code 2)       15 ms
+============== shutting down postmaster               ==============
+
+=========================
+ 90 of 213 tests failed. 
+=========================
+
+The differences that caused some tests to fail can be viewed in the
+file "/home/xiaoyu/gradDesign/postgres/build-asan/src/test/regress/regression.diffs".  A copy of the test summary that you see
+above is saved in the file "/home/xiaoyu/gradDesign/postgres/build-asan/src/test/regress/regression.out".
+
+make[1]: Leaving directory `/home/xiaoyu/gradDesign/postgres/build-asan/src/test/regress'

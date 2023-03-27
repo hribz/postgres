@@ -348,6 +348,9 @@ GenerationDelete(MemoryContext context)
 void *
 GenerationAlloc(MemoryContext context, Size size)
 {
+	#ifdef USE_ASAN
+		size += 16;
+	#endif
 	GenerationContext *set = (GenerationContext *) context;
 	GenerationBlock *block;
 	MemoryChunk *chunk;
@@ -410,6 +413,9 @@ GenerationAlloc(MemoryContext context, Size size)
 		/* Disallow external access to private part of chunk header. */
 		VALGRIND_MAKE_MEM_NOACCESS(chunk, GENERATIONCHUNK_PRIVATE_LEN);
 
+		#ifdef USE_ASAN
+			return PointerOffset(MemoryChunkGetPointer(chunk), 16);
+		#endif
 		return MemoryChunkGetPointer(chunk);
 	}
 
@@ -525,6 +531,9 @@ GenerationAlloc(MemoryContext context, Size size)
 	/* Disallow external access to private part of chunk header. */
 	VALGRIND_MAKE_MEM_NOACCESS(chunk, GENERATIONCHUNK_PRIVATE_LEN);
 
+	#ifdef USE_ASAN
+		return PointerOffset(MemoryChunkGetPointer(chunk), 16);
+	#endif
 	return MemoryChunkGetPointer(chunk);
 }
 
@@ -626,6 +635,9 @@ GenerationBlockFree(GenerationContext *set, GenerationBlock *block)
 void
 GenerationFree(void *pointer)
 {
+	#ifdef USE_ASAN
+		pointer = PointerOffset(pointer, -16);
+	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	GenerationBlock *block;
 	GenerationContext *set;
@@ -741,6 +753,10 @@ GenerationFree(void *pointer)
 void *
 GenerationRealloc(void *pointer, Size size)
 {
+	#ifdef USE_ASAN
+		size += 16;
+		pointer = PointerOffset(pointer, -16);
+	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	GenerationContext *set;
 	GenerationBlock *block;
@@ -838,8 +854,16 @@ GenerationRealloc(void *pointer, Size size)
 		/* Disallow external access to private part of chunk header. */
 		VALGRIND_MAKE_MEM_NOACCESS(chunk, GENERATIONCHUNK_PRIVATE_LEN);
 
+		#ifdef USE_ASAN
+			return PointerOffset(pointer, 16);
+		#endif
 		return pointer;
 	}
+
+	#ifdef USE_ASAN
+		size -= 16;
+		pointer = PointerOffset(pointer, 16);
+	#endif
 
 	/* allocate new chunk */
 	newPointer = GenerationAlloc((MemoryContext) set, size);
@@ -867,6 +891,9 @@ GenerationRealloc(void *pointer, Size size)
 	VALGRIND_MAKE_MEM_DEFINED(pointer, oldsize);
 #endif
 
+	#ifdef USE_ASAN
+		oldsize -= 16;
+	#endif
 	/* transfer existing data (certain to fit) */
 	memcpy(newPointer, pointer, oldsize);
 
@@ -883,6 +910,9 @@ GenerationRealloc(void *pointer, Size size)
 MemoryContext
 GenerationGetChunkContext(void *pointer)
 {
+	#ifdef USE_ASAN
+		pointer = PointerOffset(pointer, -16);
+	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	GenerationBlock *block;
 
@@ -903,6 +933,9 @@ GenerationGetChunkContext(void *pointer)
 Size
 GenerationGetChunkSpace(void *pointer)
 {
+	#ifdef USE_ASAN
+		pointer = PointerOffset(pointer, -16);
+	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	Size		chunksize;
 

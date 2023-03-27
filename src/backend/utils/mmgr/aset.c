@@ -706,6 +706,9 @@ AllocSetDelete(MemoryContext context)
 void *
 AllocSetAlloc(MemoryContext context, Size size)
 {
+	#ifdef USE_ASAN
+		size += 16;
+	#endif
 	AllocSet	set = (AllocSet) context;
 	AllocBlock	block;
 	MemoryChunk *chunk;
@@ -780,6 +783,9 @@ AllocSetAlloc(MemoryContext context, Size size)
 		/* Disallow external access to private part of chunk header. */
 		VALGRIND_MAKE_MEM_NOACCESS(chunk, ALLOCCHUNK_PRIVATE_LEN);
 
+		#ifdef USE_ASAN
+			return PointerOffset(MemoryChunkGetPointer(chunk), 16);
+		#endif
 		return MemoryChunkGetPointer(chunk);
 	}
 
@@ -826,6 +832,9 @@ AllocSetAlloc(MemoryContext context, Size size)
 		/* Disallow external access to private part of chunk header. */
 		VALGRIND_MAKE_MEM_NOACCESS(chunk, ALLOCCHUNK_PRIVATE_LEN);
 
+		#ifdef USE_ASAN
+			return PointerOffset(MemoryChunkGetPointer(chunk), 16);
+		#endif
 		return MemoryChunkGetPointer(chunk);
 	}
 
@@ -992,6 +1001,9 @@ AllocSetAlloc(MemoryContext context, Size size)
 	/* Disallow external access to private part of chunk header. */
 	VALGRIND_MAKE_MEM_NOACCESS(chunk, ALLOCCHUNK_PRIVATE_LEN);
 
+	#ifdef USE_ASAN
+		return PointerOffset(MemoryChunkGetPointer(chunk), 16);
+	#endif
 	return MemoryChunkGetPointer(chunk);
 }
 
@@ -1002,6 +1014,9 @@ AllocSetAlloc(MemoryContext context, Size size)
 void
 AllocSetFree(void *pointer)
 {
+	#ifdef USE_ASAN
+		pointer = PointerOffset(pointer, -16);
+	#endif
 	AllocSet	set;
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 
@@ -1109,6 +1124,10 @@ AllocSetFree(void *pointer)
 void *
 AllocSetRealloc(void *pointer, Size size)
 {
+	#ifdef USE_ASAN
+		size += 16;
+		pointer = PointerOffset(pointer, -16);
+	#endif
 	AllocBlock	block;
 	AllocSet	set;
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
@@ -1235,6 +1254,9 @@ AllocSetRealloc(void *pointer, Size size)
 		/* Disallow external access to private part of chunk header. */
 		VALGRIND_MAKE_MEM_NOACCESS(chunk, ALLOCCHUNK_PRIVATE_LEN);
 
+		#ifdef USE_ASAN
+			return PointerOffset(pointer, 16);
+		#endif
 		return pointer;
 	}
 
@@ -1308,10 +1330,19 @@ AllocSetRealloc(void *pointer, Size size)
 		/* Disallow external access to private part of chunk header. */
 		VALGRIND_MAKE_MEM_NOACCESS(chunk, ALLOCCHUNK_PRIVATE_LEN);
 
+		#ifdef USE_ASAN
+			return PointerOffset(pointer, 16);
+		#endif
 		return pointer;
 	}
 	else
 	{
+		
+		#ifdef USE_ASAN
+			size -= 16;
+			pointer = PointerOffset(pointer, 16);
+		#endif
+
 		/*
 		 * Enlarge-a-small-chunk case.  We just do this by brute force, ie,
 		 * allocate a new chunk and copy the data.  Since we know the existing
@@ -1353,6 +1384,9 @@ AllocSetRealloc(void *pointer, Size size)
 		VALGRIND_MAKE_MEM_DEFINED(pointer, oldsize);
 #endif
 
+		#ifdef USE_ASAN
+			oldsize -= 16;
+		#endif
 		/* transfer existing data (certain to fit) */
 		memcpy(newPointer, pointer, oldsize);
 
@@ -1370,6 +1404,9 @@ AllocSetRealloc(void *pointer, Size size)
 MemoryContext
 AllocSetGetChunkContext(void *pointer)
 {
+	#ifdef USE_ASAN
+		pointer = PointerOffset(pointer, -16);
+	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	AllocBlock	block;
 	AllocSet	set;
@@ -1393,6 +1430,9 @@ AllocSetGetChunkContext(void *pointer)
 Size
 AllocSetGetChunkSpace(void *pointer)
 {
+	#ifdef USE_ASAN
+		pointer = PointerOffset(pointer, -16);
+	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	int			fidx;
 

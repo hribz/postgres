@@ -1,0 +1,5 @@
+# asan_check postgresql extension
+comment = 'check memory error by Address Sanitizer'
+default_version = '0.0.1'
+module_pathname = '$libdir/asan_check'
+relocatable = false
