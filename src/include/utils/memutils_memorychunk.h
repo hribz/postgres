@@ -123,6 +123,9 @@ typedef struct MemoryChunk
 /* Get the pointer from the MemoryChunk */
 #define MemoryChunkGetPointer(c) \
 	((void *) ((char *) (c) + sizeof(MemoryChunk)))
+#define ChunkOffset 24
+// 释放后chunk后8字节用于link
+#define LinkOffset 16
 #define PointerOffset(p, offset) \
 	((void *) ((char *) (p) + (offset)))
 

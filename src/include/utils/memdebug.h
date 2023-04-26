@@ -26,7 +26,7 @@
  ASAN_UNPOISON_MEMORY_REGION(addr, size)
 
 #define VALGRIND_MAKE_MEM_NOACCESS(addr, size) \
- ASAN_POISON_MEMORY_REGION(addr, size)
+ ASAN_POISON_POST_REGION(addr, size)
 
 #define VALGRIND_MAKE_MEM_UNDEFINED(addr, size) \
  ASAN_UNPOISON_MEMORY_REGION(addr, size)
@@ -41,6 +41,9 @@
 #define VALGRIND_MEMPOOL_FREE(context, addr) \
  ASAN_POISON_MEMORY_REGION(addr, size)
 #define VALGRIND_MEMPOOL_CHANGE(context, optr, nptr, size) do {} while (0)
+#define VALGRIND_MEMPOOL_REALLOC(context, addr, size) \
+ ASAN_UNPOISON_MEMORY_REGION(addr, size); \
+ ASAN_MEMPOOL_REALLOC(addr, size);
 
 #else
 #define VALGRIND_CHECK_MEM_IS_DEFINED(addr, size)			do {} while (0)
@@ -52,6 +55,7 @@
 #define VALGRIND_MEMPOOL_ALLOC(context, addr, size)			do {} while (0)
 #define VALGRIND_MEMPOOL_FREE(context, addr)				do {} while (0)
 #define VALGRIND_MEMPOOL_CHANGE(context, optr, nptr, size)	do {} while (0)
+#define VALGRIND_MEMPOOL_REALLOC(context, optr, nptr, size) do {} while (0)
 #endif
 
 
@@ -65,6 +69,18 @@ wipe_mem(void *ptr, size_t size)
 	memset(ptr, 0x7F, size);
 	VALGRIND_MAKE_MEM_NOACCESS(ptr, size);
 }
+
+#ifdef USE_ASAN
+/* Wipe freed memory for debugging purposes */
+static inline void
+wipe_mem_free(void *ptr, size_t size)
+{
+	// VALGRIND_MAKE_MEM_UNDEFINED(ptr + 16, size);
+	// memset(ptr + 16, 0x7F, size);
+	// VALGRIND_MAKE_MEM_NOACCESS(ptr, size);
+	__interceptor_pfree(ptr, size);
+}
+#endif
 
 #endif							/* CLOBBER_FREED_MEMORY */
 

@@ -29,7 +29,7 @@ void
 AlignedAllocFree(void *pointer)
 {
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, -16);
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	void	   *unaligned;
@@ -61,7 +61,7 @@ void *
 AlignedAllocRealloc(void *pointer, Size size)
 {
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, -16);
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	MemoryChunk *redirchunk = PointerGetMemoryChunk(pointer);
 	Size		alignto = MemoryChunkGetValue(redirchunk);
@@ -99,8 +99,8 @@ AlignedAllocRealloc(void *pointer, Size size)
 	newptr = MemoryContextAllocAligned(ctx, size, alignto, 0);
 
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, 16);
-		old_size -= 16;
+		pointer = PointerOffset(pointer, ChunkOffset);
+		old_size -= ChunkOffset;
 	#endif
 	/*
 	 * We may memcpy beyond the end of the original allocation request size,
@@ -121,7 +121,7 @@ MemoryContext
 AlignedAllocGetChunkContext(void *pointer)
 {
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, -16);
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 
@@ -139,7 +139,7 @@ Size
 AlignedAllocGetChunkSpace(void *pointer)
 {
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, -16);
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	MemoryChunk *redirchunk = PointerGetMemoryChunk(pointer);
 	void	   *unaligned = MemoryChunkGetBlock(redirchunk);

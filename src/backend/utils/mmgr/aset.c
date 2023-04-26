@@ -707,7 +707,7 @@ void *
 AllocSetAlloc(MemoryContext context, Size size)
 {
 	#ifdef USE_ASAN
-		size += 16;
+		size += ChunkOffset;
 	#endif
 	AllocSet	set = (AllocSet) context;
 	AllocBlock	block;
@@ -784,7 +784,7 @@ AllocSetAlloc(MemoryContext context, Size size)
 		VALGRIND_MAKE_MEM_NOACCESS(chunk, ALLOCCHUNK_PRIVATE_LEN);
 
 		#ifdef USE_ASAN
-			return PointerOffset(MemoryChunkGetPointer(chunk), 16);
+			return PointerOffset(MemoryChunkGetPointer(chunk), ChunkOffset);
 		#endif
 		return MemoryChunkGetPointer(chunk);
 	}
@@ -833,7 +833,7 @@ AllocSetAlloc(MemoryContext context, Size size)
 		VALGRIND_MAKE_MEM_NOACCESS(chunk, ALLOCCHUNK_PRIVATE_LEN);
 
 		#ifdef USE_ASAN
-			return PointerOffset(MemoryChunkGetPointer(chunk), 16);
+			return PointerOffset(MemoryChunkGetPointer(chunk), ChunkOffset);
 		#endif
 		return MemoryChunkGetPointer(chunk);
 	}
@@ -1002,7 +1002,7 @@ AllocSetAlloc(MemoryContext context, Size size)
 	VALGRIND_MAKE_MEM_NOACCESS(chunk, ALLOCCHUNK_PRIVATE_LEN);
 
 	#ifdef USE_ASAN
-		return PointerOffset(MemoryChunkGetPointer(chunk), 16);
+		return PointerOffset(MemoryChunkGetPointer(chunk), ChunkOffset);
 	#endif
 	return MemoryChunkGetPointer(chunk);
 }
@@ -1015,7 +1015,7 @@ void
 AllocSetFree(void *pointer)
 {
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, -16);
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	AllocSet	set;
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
@@ -1090,7 +1090,11 @@ AllocSetFree(void *pointer)
 #endif
 
 #ifdef CLOBBER_FREED_MEMORY
+#ifdef USE_ASAN
+		wipe_mem_free(pointer, GetChunkSizeFromFreeListIdx(fidx));
+#else
 		wipe_mem(pointer, GetChunkSizeFromFreeListIdx(fidx));
+#endif
 #endif
 		/* push this chunk onto the top of the free list */
 		VALGRIND_MAKE_MEM_DEFINED(link, sizeof(AllocFreeListLink));
@@ -1125,8 +1129,8 @@ void *
 AllocSetRealloc(void *pointer, Size size)
 {
 	#ifdef USE_ASAN
-		size += 16;
-		pointer = PointerOffset(pointer, -16);
+		size += ChunkOffset;
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	AllocBlock	block;
 	AllocSet	set;
@@ -1255,7 +1259,7 @@ AllocSetRealloc(void *pointer, Size size)
 		VALGRIND_MAKE_MEM_NOACCESS(chunk, ALLOCCHUNK_PRIVATE_LEN);
 
 		#ifdef USE_ASAN
-			return PointerOffset(pointer, 16);
+			return PointerOffset(pointer, ChunkOffset);
 		#endif
 		return pointer;
 	}
@@ -1331,7 +1335,7 @@ AllocSetRealloc(void *pointer, Size size)
 		VALGRIND_MAKE_MEM_NOACCESS(chunk, ALLOCCHUNK_PRIVATE_LEN);
 
 		#ifdef USE_ASAN
-			return PointerOffset(pointer, 16);
+			return PointerOffset(pointer, ChunkOffset);
 		#endif
 		return pointer;
 	}
@@ -1339,8 +1343,8 @@ AllocSetRealloc(void *pointer, Size size)
 	{
 		
 		#ifdef USE_ASAN
-			size -= 16;
-			pointer = PointerOffset(pointer, 16);
+			size -= ChunkOffset;
+			pointer = PointerOffset(pointer, ChunkOffset);
 		#endif
 
 		/*
@@ -1385,7 +1389,7 @@ AllocSetRealloc(void *pointer, Size size)
 #endif
 
 		#ifdef USE_ASAN
-			oldsize -= 16;
+			oldsize -= ChunkOffset;
 		#endif
 		/* transfer existing data (certain to fit) */
 		memcpy(newPointer, pointer, oldsize);
@@ -1405,7 +1409,7 @@ MemoryContext
 AllocSetGetChunkContext(void *pointer)
 {
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, -16);
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	AllocBlock	block;
@@ -1431,7 +1435,7 @@ Size
 AllocSetGetChunkSpace(void *pointer)
 {
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, -16);
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	int			fidx;

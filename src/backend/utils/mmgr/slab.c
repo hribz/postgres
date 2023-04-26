@@ -340,7 +340,7 @@ SlabContextCreate(MemoryContext parent,
 		chunkSize = sizeof(MemoryChunk *);
 	
 	#ifdef USE_ASAN
-		chunkSize += 16;
+		chunkSize += ChunkOffset;
 	#endif
 
 	/* length of the maxaligned chunk including the chunk header  */
@@ -499,7 +499,7 @@ void *
 SlabAlloc(MemoryContext context, Size size)
 {
 	#ifdef USE_ASAN
-		size += 16;
+		size += ChunkOffset;
 	#endif
 	SlabContext *slab = (SlabContext *) context;
 	SlabBlock  *block;
@@ -638,7 +638,7 @@ SlabAlloc(MemoryContext context, Size size)
 #endif
 
 	#ifdef USE_ASAN
-		return PointerOffset(MemoryChunkGetPointer(chunk), 16);
+		return PointerOffset(MemoryChunkGetPointer(chunk), ChunkOffset);
 	#endif
 	return MemoryChunkGetPointer(chunk);
 }
@@ -651,7 +651,7 @@ void
 SlabFree(void *pointer)
 {
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, -16);
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	SlabBlock  *block = MemoryChunkGetBlock(chunk);
@@ -774,8 +774,8 @@ void *
 SlabRealloc(void *pointer, Size size)
 {
 	#ifdef USE_ASAN
-		size += 16;
-		pointer = PointerOffset(pointer, -16);
+		size += ChunkOffset;
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	SlabBlock  *block = MemoryChunkGetBlock(chunk);
@@ -792,7 +792,7 @@ SlabRealloc(void *pointer, Size size)
 	slab = block->slab;
 
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, 16);
+		pointer = PointerOffset(pointer, ChunkOffset);
 	#endif
 	/* can't do actual realloc with slab, but let's try to be gentle */
 	if (size == slab->chunkSize)
@@ -810,7 +810,7 @@ MemoryContext
 SlabGetChunkContext(void *pointer)
 {
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, -16);
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	SlabBlock  *block = MemoryChunkGetBlock(chunk);
@@ -828,7 +828,7 @@ Size
 SlabGetChunkSpace(void *pointer)
 {
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, -16);
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	SlabBlock  *block = MemoryChunkGetBlock(chunk);

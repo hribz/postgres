@@ -7,7 +7,6 @@ include $(top_builddir)/src/Makefile.global
 SUBDIRS = \
 		adminpack	\
 		amcheck		\
-		asan_check  \
 		auth_delay	\
 		auto_explain	\
 		basic_archive	\
@@ -52,7 +51,8 @@ SUBDIRS = \
 		tsm_system_rows \
 		tsm_system_time \
 		unaccent	\
-		vacuumlo
+		vacuumlo	\
+		asan_check  
 
 ifeq ($(with_ssl),openssl)
 SUBDIRS += pgcrypto sslinfo

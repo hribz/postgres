@@ -349,7 +349,7 @@ void *
 GenerationAlloc(MemoryContext context, Size size)
 {
 	#ifdef USE_ASAN
-		size += 16;
+		size += ChunkOffset;
 	#endif
 	GenerationContext *set = (GenerationContext *) context;
 	GenerationBlock *block;
@@ -414,7 +414,7 @@ GenerationAlloc(MemoryContext context, Size size)
 		VALGRIND_MAKE_MEM_NOACCESS(chunk, GENERATIONCHUNK_PRIVATE_LEN);
 
 		#ifdef USE_ASAN
-			return PointerOffset(MemoryChunkGetPointer(chunk), 16);
+			return PointerOffset(MemoryChunkGetPointer(chunk), ChunkOffset);
 		#endif
 		return MemoryChunkGetPointer(chunk);
 	}
@@ -532,7 +532,7 @@ GenerationAlloc(MemoryContext context, Size size)
 	VALGRIND_MAKE_MEM_NOACCESS(chunk, GENERATIONCHUNK_PRIVATE_LEN);
 
 	#ifdef USE_ASAN
-		return PointerOffset(MemoryChunkGetPointer(chunk), 16);
+		return PointerOffset(MemoryChunkGetPointer(chunk), ChunkOffset);
 	#endif
 	return MemoryChunkGetPointer(chunk);
 }
@@ -636,7 +636,7 @@ void
 GenerationFree(void *pointer)
 {
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, -16);
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	GenerationBlock *block;
@@ -754,8 +754,8 @@ void *
 GenerationRealloc(void *pointer, Size size)
 {
 	#ifdef USE_ASAN
-		size += 16;
-		pointer = PointerOffset(pointer, -16);
+		size += ChunkOffset;
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	GenerationContext *set;
@@ -855,14 +855,14 @@ GenerationRealloc(void *pointer, Size size)
 		VALGRIND_MAKE_MEM_NOACCESS(chunk, GENERATIONCHUNK_PRIVATE_LEN);
 
 		#ifdef USE_ASAN
-			return PointerOffset(pointer, 16);
+			return PointerOffset(pointer, ChunkOffset);
 		#endif
 		return pointer;
 	}
 
 	#ifdef USE_ASAN
-		size -= 16;
-		pointer = PointerOffset(pointer, 16);
+		size -= ChunkOffset;
+		pointer = PointerOffset(pointer, ChunkOffset);
 	#endif
 
 	/* allocate new chunk */
@@ -892,7 +892,7 @@ GenerationRealloc(void *pointer, Size size)
 #endif
 
 	#ifdef USE_ASAN
-		oldsize -= 16;
+		oldsize -= ChunkOffset;
 	#endif
 	/* transfer existing data (certain to fit) */
 	memcpy(newPointer, pointer, oldsize);
@@ -911,7 +911,7 @@ MemoryContext
 GenerationGetChunkContext(void *pointer)
 {
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, -16);
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	GenerationBlock *block;
@@ -934,7 +934,7 @@ Size
 GenerationGetChunkSpace(void *pointer)
 {
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, -16);
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	MemoryChunk *chunk = PointerGetMemoryChunk(pointer);
 	Size		chunksize;

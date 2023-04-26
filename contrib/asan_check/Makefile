@@ -24,3 +24,8 @@ asan:
 	make check REGRESS=asan_check EXTRA_REGRESS_OPTS="--outputdir=asan_check_log"
 	make check REGRESS=buffer_overflow EXTRA_REGRESS_OPTS="--outputdir=buffer_overflow_log"
 	make check REGRESS=double_free EXTRA_REGRESS_OPTS="--outputdir=double_free_log"
+	make check REGRESS=use_after_free EXTRA_REGRESS_OPTS="--outputdir=use_after_free_log"
+
+asan_clean:
+	make clean
+	rm -rf ./*_log

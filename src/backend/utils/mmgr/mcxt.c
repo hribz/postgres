@@ -182,7 +182,7 @@ static inline MemoryContextMethodID
 GetMemoryChunkMethodID(const void *pointer)
 {
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, -16);
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	uint64		header;
 
@@ -208,7 +208,7 @@ static inline uint64
 GetMemoryChunkHeader(const void *pointer)
 {
 	#ifdef USE_ASAN
-		pointer = PointerOffset(pointer, -16);
+		pointer = PointerOffset(pointer, -ChunkOffset);
 	#endif
 	return *((const uint64 *) ((const char *) pointer - sizeof(uint64)));
 }
@@ -1395,8 +1395,8 @@ MemoryContextAllocAligned(MemoryContext context,
 	/* perform the actual allocation */
 	unaligned = MemoryContextAllocExtended(context, alloc_size, flags);
 	#ifdef USE_ASAN
-		unaligned = PointerOffset(unaligned, -16);
-		VALGRIND_MAKE_MEM_DEFINED(unaligned, 16);
+		unaligned = PointerOffset(unaligned, -ChunkOffset);
+		VALGRIND_MAKE_MEM_DEFINED(unaligned, ChunkOffset);
 	#endif
 
 	/* set the aligned pointer */
@@ -1432,7 +1432,7 @@ MemoryContextAllocAligned(MemoryContext context,
 							   (char *) alignedchunk - (char *) unaligned);
 
 	#ifdef USE_ASAN
-		aligned = PointerOffset(aligned, 16);
+		aligned = PointerOffset(aligned, ChunkOffset);
 		VALGRIND_MEMPOOL_ALLOC(context, aligned, size);
 	#endif
 
@@ -1521,6 +1521,10 @@ repalloc(void *pointer, Size size)
 		VALGRIND_MEMPOOL_CHANGE(context, pointer, ret, size);
 #endif
 
+	#ifdef USE_ASAN
+		VALGRIND_MEMPOOL_REALLOC(context, ret, size);
+	#endif
+
 	return ret;
 }
 
@@ -1564,6 +1568,9 @@ repalloc_extended(void *pointer, Size size, int flags)
 	}
 
 	VALGRIND_MEMPOOL_CHANGE(context, pointer, ret, size);
+	#ifdef USE_ASAN
+		VALGRIND_MEMPOOL_REALLOC(context, ret, size);
+	#endif
 
 	return ret;
 }
